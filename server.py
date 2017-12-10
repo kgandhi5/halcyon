@@ -4,8 +4,8 @@ from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, DecimalField, SelectMultipleField, RadioField
 from wtforms.validators import Length, InputRequired
-import process_danger as Danger
-import json
+import json, os
+import Final_Data
 
 app = Flask(__name__)
 CORS(app)
@@ -43,8 +43,9 @@ class FilterForm(FlaskForm):
 def index():
 	form = FilterForm()
 	if form.validate_on_submit():
-		
-		Danger.processInputs(form)
+		#os.makedirs('res/geojson')
+		with open('res/geojson/geodata.json', 'w+') as outfile:
+			json.dump(Final_Data.update_map(form), outfile)
 	return render_template('index.html', form=form)
 
 @app.route('/map')
@@ -61,7 +62,7 @@ def filterdata():
         #		}
         # halcyon coords from google maps are *backwards* : 30.266965, -97.745684
 	# test_json= {"geometry": {"type": "Point", "coordinates": [-97.745684, 30.266965]}, "type": "Feature", "properties": {}}
-        test_json = retrieve_json_file("test_halcyon.json")
+        test_json = retrieve_json_file("geodata.json")
 
         # return with correct header
 	return jsonify(test_json)
