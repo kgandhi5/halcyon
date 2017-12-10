@@ -17,9 +17,8 @@ class FilterForm(FlaskForm):
 @app.route('/', methods=('GET','POST'))
 def index():
 	form = FilterForm()
-	Danger.processInputs(form)
 	if form.validate_on_submit():
-		return redirect(url_for('map'))
+		Danger.processInputs(form)
 	return render_template('index.html', form=form)
 
 @app.route('/map')
