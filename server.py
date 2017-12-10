@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect, url_for, jsonify
+from flask_cors import CORS
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, DecimalField, SelectMultipleField, RadioField
@@ -6,6 +7,7 @@ from wtforms.validators import Length, InputRequired
 import process_danger as Danger
 
 app = Flask(__name__)
+CORS(app)
 app.config['SECRET_KEY'] = 'halcyon_danger'
 Bootstrap(app)
 
@@ -34,7 +36,8 @@ def filterdata():
 				"blue":3
 				}
 			}
-	test_json= {"geometry": {"type": "Point", "coordinates": [111.48074142925812, -5.2353587094093674]}, "type": "Feature", "properties": {}}
+        # halcyon coords from google maps are *backwards* : 30.266965, -97.745684
+	test_json= {"geometry": {"type": "Point", "coordinates": [-97.745684, 30.266965]}, "type": "Feature", "properties": {}}
 	return jsonify(test_json)
 
 if __name__ == '__main__':
