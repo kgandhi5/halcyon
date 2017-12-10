@@ -115,3 +115,34 @@ def update_map(form):
 
     return geojson
 
+# if (__name__ == "main" ) :
+if __name__ == "__main__":
+    from sys import argv
+    # mock class simulating the flask form data
+    class testForm(dict):
+        pass
+    class testFormData(dict):
+        pass
+    if(len(argv) == 4):
+	# test_json= {"geometry": {"type": "Point", "coordinates": [-97.745684, 30.266965]}, "type": "Feature", "properties": {}}
+        form = {
+                "address" : { "data" : argv[1]},
+                "radius" : { "data" : argv[2]},
+                "types_req" : { "data" : argv[3]},
+                }
+        form = testForm()
+        # mock address
+        form.address = testFormData()
+        form.address.data = argv[1]
+        # mock radius
+        form.radius = testFormData()
+        form.radius.data = int(argv[2])
+        # mock incident type
+        form.incident_type = testFormData()
+        form.incident_type.data = argv[3].split()
+        # print the json
+        import pprint as pp
+        pp.pprint(update_map(form))
+    else:
+        print("not enough args: %s" % argv)
+
