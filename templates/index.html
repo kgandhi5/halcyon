@@ -1,0 +1,22 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+The Danger
+{% endblock %}
+
+{% block content %}
+<div class="container">
+	<form method="POST" action="{{ url_for('index') }}">
+		{{ form.hidden_tag() }}
+		{{ wtf.form_field(form.address) }}
+		{{ wtf.form_field(form.radius) }}
+		{{ wtf.form_field(form.incident_type) }}
+		<button class="btn btn-lg btn-primary btn-block" type="submit">Filter</button>
+	</form>
+</div>
+</br>
+<div class="container">
+	<iframe height="500" width="100%" src="{{ url_for('map') }}"></iframe>
+</div>
+{% endblock %}
