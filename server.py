@@ -5,11 +5,34 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, DecimalField, SelectMultipleField, RadioField
 from wtforms.validators import Length, InputRequired
 import process_danger as Danger
+import json
 
 app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = 'halcyon_danger'
 Bootstrap(app)
+
+# dump json to file for consumption by whatever else needs it
+def retrieve_json_file(filename, resource_dir="res/geojson"):
+    #if ( quiet != 1):
+    #    print("# save to file")
+    # tmp:
+    filepath=("%s/%s" % (resource_dir, filename))
+
+#    # make sure file is updated
+#    run_model_hook(runhook)
+
+    # open file as json
+    loadedjson = str()
+    with open(filepath, 'r') as infile:
+       loadedjson = json.load(infile)
+    #debug# print("loaded %s" % filepath)
+
+    # read into python structure - TODO: not best practice, return json string instead?
+    # loadedroute = json.loads(loadedjson)
+
+    # return json string
+    return loadedjson
 
 class FilterForm(FlaskForm):
 	address = StringField('Address')
@@ -30,14 +53,17 @@ def map():
 
 @app.route('/rest/get/filterdata', methods=('GET','POST'))
 def filterdata():
-	test_json = {
-			"name":{
-				"flower":"red",
-				"blue":3
-				}
-			}
+        #test_json = {
+        #		"name":{
+        #			"flower":"red",
+        #			"blue":3
+        #			}
+        #		}
         # halcyon coords from google maps are *backwards* : 30.266965, -97.745684
-	test_json= {"geometry": {"type": "Point", "coordinates": [-97.745684, 30.266965]}, "type": "Feature", "properties": {}}
+	# test_json= {"geometry": {"type": "Point", "coordinates": [-97.745684, 30.266965]}, "type": "Feature", "properties": {}}
+        test_json = retrieve_json_file("test_halcyon.json")
+
+        # return with correct header
 	return jsonify(test_json)
 
 if __name__ == '__main__':
