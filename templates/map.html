@@ -1,11 +1,180 @@
-{% extends "bootstrap/base.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title></title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.31.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.31.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; height:100%; }
+    </style>
+</head>
+<body>
 
-{% block title %}
-The Map
-{% endblock %}
+<style>
+  .mapboxgl-popup {
+        max-width: 400px;
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    }
+.legend {
+  background-color: #fff;
+  border-radius: 3px;
+  bottom: 30px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  padding: 10px;
+  position: absolute;
+  right: 10px;
+  z-index: 1;
+}
 
-{% block content %}
-<div class="container">
-	<h1>Put map here</h1>
+.legend h4 {
+  margin: 0 0 10px;
+}
+
+.legend p {
+  margin-left: 30px;
+  position: absolute;
+  display: block;
+  top: 0;
+}
+
+.legend div {
+  position: relative;
+}
+
+.legend div span {
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+  opacity: 0.8;
+  background-color: #d49a66;
+}
+</style>
+
+<div id='map'></div>
+<div id='legend' class='legend'>
+  <h4>Austin</h4>
 </div>
-{% endblock %}
+
+
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoiYXJpZWxhaW50aGV3aW5kc2VhIiwiYSI6ImNpeHBxbWwzazA0Yzcyd251OXF3Y3BkMWYifQ.5Cf5vdbbZQZO2glznStDQA';
+
+// var bounds = [
+//     [-97.032140, 30.164237], // Southwest coordinates
+//     [-97.925140, 30.364237]  // Northeast coordinates
+// ];
+
+var map = new mapboxgl.Map({
+    container: 'map', // container id
+    style: 'mapbox://styles/arielainthewindsea/cjb0pwqdk69u92stq1akbr53x', //hosted style id
+    center: [-97.741393, 30.268960], // starting position
+    zoom: 14, // starting zoom
+    // maxBounds: bounds
+});
+
+map.addControl(new mapboxgl.NavigationControl({ position: 'top-left' }));
+
+// Load the vector tile source from the Mapbox Pedestrian traffic example
+map.on('load', function() {
+      // Add the circle layer to the map
+    map.addLayer({
+        id: '311-concerns',
+        type: 'circle',
+        paint: {
+            'circle-color': '#4fe0e8',
+            'circle-opacity': 0.3
+        },
+        source: {
+          type: 'vector',
+          url: 'mapbox://arielainthewindsea.1t5755g7' // Your Mapbox tileset Map ID
+        },
+        'source-layer': '311_concerns-44vojt' // name of tilesets
+
+    });
+});
+
+// When a click event occurs near a place, open a popup at the location of
+// the feature, with HTML description from its properties
+map.on('click', function(e) {
+  var features = map.queryRenderedFeatures(e.point, { layers: ['311-concerns'] });
+
+  // if the features have no info, return nothing
+  if (!features.length) {
+    return;
+  }
+
+  var feature = features[0];
+
+  // Populate the popup and set its coordinates
+  // based on the feature found
+  var popup = new mapboxgl.Popup()
+  .setLngLat(feature.geometry.coordinates)
+  .setHTML('<div id=\'popup\' class=\'popup\' style=\'z-index: 10;\'> <h5> Detail: </h5>' +
+  '<ul class=\'list-group\'>' +
+  '<li class=\'list-group-item\'> Date: ' + feature.properties['Created Date'] + ' </li>' +
+  '<li class=\'list-group-item\'> Department: ' + feature.properties['Owning Department'] + ' </li>' +
+  '<li class=\'list-group-item\'> Incident: ' + feature.properties['SR Description'] + ' </li></ul></div>')
+  .addTo(map);
+});
+
+// Use the same approach as above to indicate that the symbols are clickable
+// by changing the cursor style to 'pointer'
+map.on('mousemove', function(e) {
+  var features = map.queryRenderedFeatures(e.point, { layers: ['311-concerns'] });
+  map.getCanvas().style.cursor = features.length ? 'pointer' : '';
+});
+
+// // dynamic data input
+// var url = 'https://wanderdrone.appspot.com/'; //change the url
+// map.on('load', function () {
+//     window.setInterval(function() {
+//         map.getSource('drone').setData(url);
+//     }, 2000);
+
+//     map.addSource('drone', { type: 'geojson', data: url });
+//     map.addLayer({
+//         "id": "drone",
+//         "type": "symbol",
+//         "source": "drone",
+//         "layout": {
+//             "icon-image": "rocket-15"
+//         }
+//     });
+// });
+
+// Create a popup, but don't add it to the map yet.
+var popup = new mapboxgl.Popup({
+    closeButton: false,
+    closeOnClick: false
+});
+
+map.on('mousemove', function(e) {
+    var features = map.queryRenderedFeatures(e.point, { layers: ['places'] });
+    // Change the cursor style as a UI indicator.
+    map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
+
+    if (!features.length) {
+        popup.remove();
+        return;
+    }
+
+    var feature = features[0];
+
+    // Populate the popup and set its coordinates
+    // based on the feature found.
+    popup.setLngLat(feature.geometry.coordinates)
+        .setHTML(feature.properties.description)
+        .addTo(map);
+});
+
+</script>
+
+
+</body>
+</html>
+
+
