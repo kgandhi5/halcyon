@@ -100,6 +100,7 @@ map.addControl(new mapboxgl.NavigationControl({ position: 'top-left' }));
 
 // dynamic data input
 var url = 'https://wanderdrone.appspot.com/'; //change the url
+var url = 'http://localhost:5000/rest/get/filterdata'; 
 map.on('load', function() {
     window.setInterval(function() {
         map.getSource('drone').setData(url);
